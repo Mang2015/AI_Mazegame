@@ -1,0 +1,3 @@
+// This file will be used to output the maze to the monitor
+
+module maze
