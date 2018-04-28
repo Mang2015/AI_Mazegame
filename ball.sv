@@ -106,6 +106,13 @@ module  ball ( input         Clk,                // 50 MHz clock
 						begin
 							Ball_X_Motion_in = 10'd0;
 							Ball_Y_Motion_in = ~(Ball_Y_Step) + 1'b1;
+							
+							if((Ball_Y_Pos - Ball_Size <= wall_1_H && Ball_X_Pos + Ball_Size >= wall_1_V && Ball_X_Pos - Ball_Size <= wall_1_V + wall_thickness && Ball_Y_Pos > wall_1_H)
+								|| (Ball_Y_Pos - Ball_Size <= wall_2_H && Ball_X_Pos + Ball_Size >= wall_2_V && Ball_X_Pos - Ball_Size <= wall_2_V + wall_thickness && Ball_Y_Pos > wall_2_H))
+								begin
+									Ball_Y_Motion_in = Ball_Y_Step;
+									Ball_X_Motion_in = 10'd0;
+								end
 						end
 					8'h16: //S
 						begin
@@ -116,11 +123,25 @@ module  ball ( input         Clk,                // 50 MHz clock
 						begin
 							Ball_X_Motion_in = ~(Ball_X_Step) + 1'b1;
 							Ball_Y_Motion_in = 10'd0;
+							
+							if((Ball_X_Pos - Ball_Size <= wall_1_V + wall_thickness && Ball_Y_Pos >= top_wall_idx + wall_thickness && Ball_Y_Pos - Ball_Size <= wall_1_H && Ball_X_Pos > wall_1_V + wall_thickness)
+								|| (Ball_X_Pos - Ball_Size <= wall_2_V + wall_thickness && Ball_Y_Pos >= top_wall_idx + wall_thickness && Ball_Y_Pos - Ball_Size <= wall_2_H && Ball_X_Pos > wall_2_V + wall_thickness))
+								begin
+									Ball_X_Motion_in = Ball_X_Step;
+									Ball_Y_Motion_in = 10'd0;
+								end
 						end
 					8'h07: //D
 						begin
 							Ball_X_Motion_in = Ball_X_Step;
 							Ball_Y_Motion_in = 10'd0;
+							
+							if((Ball_X_Pos + Ball_Size >= wall_1_V && Ball_Y_Pos + Ball_Size >= top_wall_idx + wall_thickness && Ball_Y_Pos - Ball_Size <= wall_1_H && Ball_X_Pos < wall_1_V)
+								|| (Ball_X_Pos + Ball_Size >= wall_2_V && Ball_Y_Pos + Ball_Size >= top_wall_idx + wall_thickness && Ball_Y_Pos - Ball_Size <= wall_2_H && Ball_X_Pos < wall_2_V))
+								begin
+									Ball_X_Motion_in = (~(Ball_X_Step) + 1'b1);
+									Ball_Y_Motion_in = 10'd0;
+								end
 						end
 					default:
 						begin
@@ -179,21 +200,22 @@ module  ball ( input         Clk,                // 50 MHz clock
 						Ball_X_Motion_in = Ball_X_Step;
 						Ball_Y_Motion_in = 10'd0;
 					end
-				/*	
+					
+				/*
 				// Intermediate Walls
-				if(Ball_X_Pos + Ball_Size >= wall_1_V)
+				if(Ball_X_Pos + Ball_Size >= wall_1_V && Ball_Y_Pos + Ball_Size >= top_wall_idx + wall_thickness && Ball_Y_Pos - Ball_Size <= wall_1_H)
 					begin
-						Ball_X_Motion_in = (~(Ball_X_Step) + 1'b1);
+						Ball_X_Motion_in = 10'd0;//(~(Ball_X_Step) + 1'b1);
 						Ball_Y_Motion_in = 10'd0;
 					end
-				else if(Ball_X_Pos - Ball_Size <= wall_1_V + wall_thickness)
+				else if(Ball_X_Pos - Ball_Size <= wall_1_V + wall_thickness && Ball_Y_Pos >= top_wall_idx + wall_thickness && Ball_Y_Pos - Ball_Size <= wall_1_H)
 					begin
-						Ball_X_Motion_in = Ball_X_Step;
+						Ball_X_Motion_in = 10'd0;//Ball_X_Step;
 						Ball_Y_Motion_in = 10'd0;
 					end
-				else if(Ball_Y_Pos - Ball_Size <= wall_1_H)
+				else if(Ball_Y_Pos - Ball_Size <= wall_1_H && Ball_X_Pos + Ball_Size >= wall_1_V && Ball_X_Pos - Ball_Size <= wall_1_V + wall_thickness)
 					begin
-						Ball_Y_Motion_in = Ball_Y_Step;
+						Ball_Y_Motion_in = 10'd0;//Ball_Y_Step;
 						Ball_X_Motion_in = 10'd0;
 					end
 				*/
