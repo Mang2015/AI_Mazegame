@@ -21,7 +21,7 @@ module  ball ( input         Clk,                // 50 MHz clock
 					input [7:0]	  keycode,
 					input maze1out, maze2out,
                output logic  is_ball,             // Whether current pixel belongs to ball or background
-					output logic  goal_reach1, goal_reach2
+					output logic  goal_reach1, goal_reach2, loadReg1, loadReg2
               );
     
     parameter [9:0] Ball_X_Center = 10'd320;  // Center position on the X axis
@@ -181,8 +181,8 @@ module  ball ( input         Clk,                // 50 MHz clock
     begin
         if (Reset)
         begin
-            Ball_X_Pos <= Ball_X_Center;
-            Ball_Y_Pos <= Ball_Y_Center;
+            Ball_X_Pos <= 10'd140;
+            Ball_Y_Pos <= 10'd60;
             Ball_X_Motion <= 10'd0;
             Ball_Y_Motion <= Ball_Y_Step;
 				goal_reach1 <= 1'b0;
@@ -210,6 +210,8 @@ module  ball ( input         Clk,                // 50 MHz clock
         Ball_Y_Motion_in = Ball_Y_Motion;
 		  goal_reach1_in = goal_reach1; // for error
 		  goal_reach2_in = goal_reach2; // for error
+		  loadReg1 = 1'b0;
+		  loadReg2 = 1'b0;
 		  
 		  if(maze1out == 1'b1)
 		  begin
@@ -220,6 +222,7 @@ module  ball ( input         Clk,                // 50 MHz clock
 				case(keycode)
 					8'h1A: //W
 						begin
+							loadReg1 = 1'b1;
 							Ball_X_Motion_in = 10'd0;
 							Ball_Y_Motion_in = ~(Ball_Y_Step) + 1'b1;
 							
@@ -240,6 +243,7 @@ module  ball ( input         Clk,                // 50 MHz clock
 						end
 					8'h16: //S
 						begin
+							loadReg1 = 1'b1;
 							Ball_X_Motion_in = 10'd0;
 							Ball_Y_Motion_in = Ball_Y_Step;
 							
@@ -260,6 +264,7 @@ module  ball ( input         Clk,                // 50 MHz clock
 						end
 					8'h04: //A
 						begin
+							loadReg1 = 1'b1;
 							Ball_X_Motion_in = ~(Ball_X_Step) + 1'b1;
 							Ball_Y_Motion_in = 10'd0;
 							
@@ -280,6 +285,7 @@ module  ball ( input         Clk,                // 50 MHz clock
 						end
 					8'h07: //D
 						begin
+							loadReg1 = 1'b1;
 							Ball_X_Motion_in = Ball_X_Step;
 							Ball_Y_Motion_in = 10'd0;
 							
@@ -300,6 +306,7 @@ module  ball ( input         Clk,                // 50 MHz clock
 						end
 					default:
 						begin
+							loadReg1 = 1'b0;
 							//Ball_X_Motion_in = Ball_X_Motion;
 							//Ball_Y_Motion_in = Ball_Y_Motion;
 							Ball_X_Motion_in = 10'd0;
@@ -382,6 +389,7 @@ module  ball ( input         Clk,                // 50 MHz clock
 				case(keycode)
 					8'h1A: //W
 						begin
+							loadReg2 = 1'b1;
 							Ball_X_Motion_in = 10'd0;
 							Ball_Y_Motion_in = ~(Ball_Y_Step) + 1'b1;
 							
@@ -435,6 +443,7 @@ module  ball ( input         Clk,                // 50 MHz clock
 						end
 					8'h16: //S
 						begin
+							loadReg2 = 1'b1;
 							Ball_X_Motion_in = 10'd0;
 							Ball_Y_Motion_in = Ball_Y_Step;
 							
@@ -488,6 +497,7 @@ module  ball ( input         Clk,                // 50 MHz clock
 						end
 					8'h04: //A
 						begin
+							loadReg2 = 1'b1;
 							Ball_X_Motion_in = ~(Ball_X_Step) + 1'b1;
 							Ball_Y_Motion_in = 10'd0;
 							
@@ -541,6 +551,7 @@ module  ball ( input         Clk,                // 50 MHz clock
 						end
 					8'h07: //D
 						begin
+							loadReg2 = 1'b1;
 							Ball_X_Motion_in = Ball_X_Step;
 							Ball_Y_Motion_in = 10'd0;
 							
@@ -596,6 +607,7 @@ module  ball ( input         Clk,                // 50 MHz clock
 						end
 					default:
 						begin
+							loadReg2 = 1'b0;
 							//Ball_X_Motion_in = Ball_X_Motion;
 							//Ball_Y_Motion_in = Ball_Y_Motion;
 							Ball_X_Motion_in = 10'd0;

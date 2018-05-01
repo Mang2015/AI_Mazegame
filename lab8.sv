@@ -67,11 +67,15 @@ module lab8( input               CLOCK_50,
 	 logic is_path;
 	 logic goal_reach1, goal_reach2;
 	 logic maze1out, maze2out, maze3out;
-	 logic loadReg;
-	 logic [7:0] accVal, countVal;
+	 logic loadReg1, loadReg2;
+	 logic [31:0] accVal1, accVal2, countVal1, countVal2;
+	 logic slowClk;
+	 logic [31:0] counter1, counter2;
+	 assign counter1 = 32'b0000000000000000;
+	 assign counter2 = 32'b0000000000000000;
 
-	 assign loadReg = 1'b1;
-	 assign accVal = 8'b00000001;
+	 assign accVal1 = 32'b0000000000000000;
+	 assign accVal2 = 32'b0000000000000000;
 	  
     // Interface between NIOS II and EZ-OTG chip
     hpi_io_intf hpi_io_inst(
@@ -137,13 +141,33 @@ module lab8( input               CLOCK_50,
 		.DrawY(DrawY)
 	 );
 	 
-	 reg_8 reg_instance
+	 clockDivider
+	 (
+		.input0(0),
+		.input1(1),
+		.clock(VGA_VS),
+		.reset(Reset_h),
+		.y(slowClk)
+	 );
+	 
+	 reg_8 reg_instance1
 	 (
 		.Clk(VGA_VS),
 		.Reset(Reset_h),
-		.Load(LoadReg),
-		.D(accVal),
-		.Data_Out(countVal)
+		.Load(loadReg1),
+		.D(accVal1),
+		.Data_Out(countVal1),
+		.counter(counter1)
+	 );
+	 
+	 reg_8 reg_instance2
+	 (
+		.Clk(VGA_VS),
+		.Reset(Reset_h),
+		.Load(loadReg2),
+		.D(accVal2),
+		.Data_Out(countVal2),
+		.counter(counter2)
 	 );
     
     // Which signal should be frame_clk?
@@ -159,7 +183,9 @@ module lab8( input               CLOCK_50,
 		.maze2out(maze2out),
 		.is_ball(is_ball),
 		.goal_reach1(goal_reach1),
-		.goal_reach2(goal_reach2)
+		.goal_reach2(goal_reach2),
+		.loadReg1(loadReg1),
+		.loadReg2(loadReg2)
 	 );
 	 
 	 maze maze_instance
@@ -174,7 +200,8 @@ module lab8( input               CLOCK_50,
 		.maze3out(maze3out),
 		.path(countVal),
 		.is_maze(is_maze),
-		.is_goal(is_goal)
+		.is_goal(is_goal),
+		.is_path(is_path)
 	 );
 	 
 	 control control_instance
@@ -193,6 +220,7 @@ module lab8( input               CLOCK_50,
 		.is_ball(is_ball),
 		.is_maze(is_maze),
 		.is_goal(is_goal),
+		.is_path(is_path),
 		.DrawX(DrawX),
 		.DrawY(DrawY),
 		.VGA_R(VGA_R),
@@ -201,8 +229,8 @@ module lab8( input               CLOCK_50,
 	 );
     
     // Display keycode on hex display
-    HexDriver hex_inst_0 (keycode[3:0], HEX0);
-    HexDriver hex_inst_1 (keycode[7:4], HEX1);
+    HexDriver hex_inst_0 (countVal1[3:0], HEX0);
+    HexDriver hex_inst_1 (countVal1[7:4], HEX1);
     
     /**************************************************************************************
         ATTENTION! Please answer the following quesiton in your lab report! Points will be allocated for the answers!
