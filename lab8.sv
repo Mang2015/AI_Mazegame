@@ -63,7 +63,16 @@ module lab8( input               CLOCK_50,
 	 logic is_ball;
 	 // IS MAZE
 	 logic is_maze;
-    
+	 logic is_goal;
+	 logic is_path;
+	 logic goal_reach1, goal_reach2;
+	 logic maze1out, maze2out, maze3out;
+	 logic loadReg;
+	 logic [7:0] accVal, countVal;
+
+	 assign loadReg = 1'b1;
+	 assign accVal = 8'b00000001;
+	  
     // Interface between NIOS II and EZ-OTG chip
     hpi_io_intf hpi_io_inst(
                             .Clk(Clk),
@@ -127,6 +136,15 @@ module lab8( input               CLOCK_50,
 		.DrawX(DrawX),
 		.DrawY(DrawY)
 	 );
+	 
+	 reg_8 reg_instance
+	 (
+		.Clk(VGA_VS),
+		.Reset(Reset_h),
+		.Load(LoadReg),
+		.D(accVal),
+		.Data_Out(countVal)
+	 );
     
     // Which signal should be frame_clk?
     ball ball_instance
@@ -137,7 +155,11 @@ module lab8( input               CLOCK_50,
 		.DrawX(DrawX),
 		.DrawY(DrawY),
 		.keycode(keycode),
-		.is_ball(is_ball)
+		.maze1out(maze1out),
+		.maze2out(maze2out),
+		.is_ball(is_ball),
+		.goal_reach1(goal_reach1),
+		.goal_reach2(goal_reach2)
 	 );
 	 
 	 maze maze_instance
@@ -147,13 +169,30 @@ module lab8( input               CLOCK_50,
 		.frame_clk(VGA_VS),
 		.DrawX(DrawX),
 		.DrawY(DrawY),
-		.is_maze(is_maze)
+		.maze1out(maze1out),
+		.maze2out(maze2out),
+		.maze3out(maze3out),
+		.path(countVal),
+		.is_maze(is_maze),
+		.is_goal(is_goal)
+	 );
+	 
+	 control control_instance
+	 (
+		.Clk(Clk),
+		.Reset(Reset_h),
+		.goal_reach1(goal_reach1),
+		.goal_reach2(goal_reach2),
+		.maze1out(maze1out),
+		.maze2out(maze2out),
+		.maze3out(maze3out)
 	 );
     
     color_mapper color_instance
 	 (
 		.is_ball(is_ball),
 		.is_maze(is_maze),
+		.is_goal(is_goal),
 		.DrawX(DrawX),
 		.DrawY(DrawY),
 		.VGA_R(VGA_R),
